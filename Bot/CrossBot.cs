@@ -10,6 +10,7 @@ using SysBot.Base;
 using System.Text;
 using System.IO;
 using System.Collections.Generic;
+using SysBot.ACNHOrders.HttpDodoClient;
 
 namespace SysBot.ACNHOrders
 {
@@ -34,6 +35,8 @@ namespace SysBot.ACNHOrders
         public readonly DropBotState State;
 
         public readonly DodoDraw? DodoImageDrawer;
+
+        public readonly HttpDodoClientClass _dodoClient;
 
         public MapTerrainLite Map { get; private set; } = new MapTerrainLite(new byte[MapGrid.MapTileCount32x32 * Item.SIZE]);
         public TimeBlock LastTimeState { get; private set; } = new();
@@ -70,6 +73,9 @@ namespace SysBot.ACNHOrders
             DodoPosition = new DodoPositionHelper(this);
             VisitorList = new VisitorListHelper(this);
             PocketInjector = new PocketInjectorAsync(SwitchConnection, InventoryOffset);
+
+            HttpDodoClientClass dodoClient = new HttpDodoClientClass(cfg.DodoUsername, cfg.DodoPassword, cfg.DodoEndpoint);
+            _dodoClient = dodoClient;
         }
 
         public override void SoftStop() => Config.AcceptingCommands = false;
@@ -1248,10 +1254,13 @@ namespace SysBot.ACNHOrders
 
         public async Task UpdateBlocker(bool show, CancellationToken token) => await FileUtil.WriteBytesToFileAsync(show ? Encoding.UTF8.GetBytes(Config.BlockerEmoji) : Array.Empty<byte>(), "blocker.txt", token).ConfigureAwait(false);
 
-        private void NotifyDodo(string dodo)
+        private async void NotifyDodo(string dodo)
         {
+
+            await _dodoClient.DodoPostMehtod(TownName,dodo);
             foreach (var n in DodoNotifiers)
                 n.NotifyServerOfDodoCode(dodo);
+                
         }
 
         private void NotifyState(GameState st)

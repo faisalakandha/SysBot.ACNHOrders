@@ -123,6 +123,15 @@ namespace SysBot.ACNHOrders
 
         #endregion
 
+        #region HttpClient
+        public string DodoEndpoint { get; set; } = "https://dazzlingduckgames.com/wp-json/dodo/v1/codes/";
+
+        public string DodoUsername { get; set; } = "dodo";
+        
+        public string DodoPassword { get; set; } = "dodo";
+
+        #endregion
+
         public bool CanUseCommandUser(ulong authorId) => Users.Count == 0 || Users.Contains(authorId);
         public bool CanUseCommandChannel(ulong channelId) => Channels.Count == 0 || Channels.Contains(channelId);
         public bool CanUseSudo(ulong userId) => Sudo.Contains(userId);
